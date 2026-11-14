@@ -1,0 +1,7 @@
+{
+  "name": "barangay",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
