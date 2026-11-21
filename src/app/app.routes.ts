@@ -17,10 +17,11 @@ export const routes: Routes = [
       import('./pages/register/register.page').then((m) => m.RegisterPage),
   },
   {
-    path: 'admin',
+    path: 'admin-dashboard',
     loadComponent: () =>
-      import('./pages/admin/admin.page').then((m) => m.AdminPage),
-  },
+      import('./pages/admin-dashboard/admin-dashboard.page').then((m) => m.AdminDashboardPage
+    ),
+},
   {
     path: 'resident-user',
     loadComponent: () =>
