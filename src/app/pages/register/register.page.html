@@ -1,0 +1,39 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Barangay Management - Login</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="aesthetic-container">
+    <h2>Barangay Portal</h2>
+    <p class="subtitle">Gumawa ng bagong account</p>
+    
+    <ion-item>
+      <ion-input 
+        label="Username" 
+        labelPlacement="stacked" 
+        placeholder="Maglagay ng username" 
+        [(ngModel)]="userData.username">
+      </ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-input 
+        type="password" 
+        label="Password" 
+        labelPlacement="stacked" 
+        placeholder="Maglagay ng password" 
+        [(ngModel)]="userData.password">
+      </ion-input>
+    </ion-item>
+
+    <ion-button expand="block" color="success" (click)="onRegister()">
+      Mag-register
+    </ion-button>
+
+    <ion-button expand="block" color="medium" fill="clear" (click)="goToLogin()">
+      Already have an account? Login Here!
+    </ion-button>
+  </div>
+</ion-content>
