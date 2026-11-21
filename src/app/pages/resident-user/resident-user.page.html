@@ -1,13 +1,180 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>resident-user</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-split-pane content-id="resident-main-content">
+  <!-- SIDEBAR MENU -->
+  <ion-menu content-id="resident-main-content" menuId="resident-main-menu">
+    <ion-header>
+      <ion-toolbar class="aesthetic-toolbar">
+        <ion-title>Barangay San Anton</ion-title>
+      </ion-toolbar>
+    </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">resident-user</ion-title>
-    </ion-toolbar>
-  </ion-header>
-</ion-content>
+    <ion-content>
+      <ion-list lines="none">
+        <ion-item
+          button
+          (click)="switchTab('dashboard')"
+          [color]="activeTab === 'dashboard' ? 'light' : ''"
+        >
+          <ion-icon slot="start" name="home-outline"></ion-icon>
+          <ion-label>Dashboard & Officials</ion-label>
+        </ion-item>
+        <ion-item
+          button
+          (click)="switchTab('request')"
+          [color]="activeTab === 'request' ? 'light' : ''"
+        >
+          <ion-icon slot="start" name="document-outline"></ion-icon>
+          <ion-label>Request Certificate</ion-label>
+        </ion-item>
+        <ion-item
+          button
+          (click)="switchTab('track')"
+          [color]="activeTab === 'track' ? 'light' : ''"
+        >
+          <ion-icon slot="start" name="list-outline"></ion-icon>
+          <ion-label>Track Requests</ion-label>
+        </ion-item>
+        <ion-item
+          button
+          (click)="switchTab('announcements')"
+          [color]="activeTab === 'announcements' ? 'light' : ''"
+        >
+          <ion-icon slot="start" name="megaphone-outline"></ion-icon>
+          <ion-label>Announcements</ion-label>
+        </ion-item>
+        <ion-item
+          button
+          (click)="switchTab('profile')"
+          [color]="activeTab === 'profile' ? 'light' : ''"
+        >
+          <ion-icon slot="start" name="person-outline"></ion-icon>
+          <ion-label>My Profile</ion-label>
+        </ion-item>
+      </ion-list>
+
+      <div class="ion-padding">
+        <ion-button expand="block" color="danger" (click)="logout()">
+          <ion-icon slot="start" name="log-out-outline"></ion-icon>
+          Logout
+        </ion-button>
+      </div>
+    </ion-content>
+  </ion-menu>
+
+  <!-- MAIN CONTENT AREA -->
+  <div class="ion-page" id="resident-main-content">
+    <ion-header [translucent]="true">
+      <ion-toolbar class="aesthetic-toolbar">
+        <ion-buttons slot="start">
+          <ion-menu-button></ion-menu-button>
+        </ion-buttons>
+        <ion-title>Resident Portal - Barangay San Anton</ion-title>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="ion-padding">
+      <div class="dashboard-container">
+        <!-- BANNER -->
+        <div class="barangay-hero-banner">
+          <div class="hero-logo-container">
+            <img
+              src="/assets/san-anton-logo.jpg"
+              alt="Barangay San Anton Logo"
+              class="hero-logo-img"
+            />
+          </div>
+          <div class="hero-text">
+            <h2>Welcome, {{ username() || 'Resident' }}!</h2>
+            <p>San Leonardo, Nueva Ecija • Resident Portal</p>
+          </div>
+        </div>
+
+        <!-- TAB 1: DASHBOARD & OFFICIALS -->
+        @if (activeTab === 'dashboard') {
+          <div class="stats-grid">
+            <ion-card class="stat-card">
+              <ion-card-header>
+                <ion-icon name="people" color="primary" size="large"></ion-icon>
+                <ion-card-title>Total Residents</ion-card-title>
+              </ion-card-header>
+              <ion-card-content>
+                <h3>{{ totalResidents }}</h3>
+                <p>Active registered residents</p>
+              </ion-card-content>
+            </ion-card>
+          </div>
+
+          <div class="section-container">
+            <h3>Barangay San Anton Officials</h3>
+            <ion-card class="official-group-card">
+              <ion-card-content>
+                <ion-item lines="none">
+                  <ion-icon
+                    name="shield-checkmark"
+                    slot="start"
+                    color="primary"
+                  ></ion-icon>
+                  <ion-label>
+                    <h2>{{ barangayCaptain }}</h2>
+                    <p>Punong Barangay (Captain)</p>
+                  </ion-label>
+                </ion-item>
+              </ion-card-content>
+            </ion-card>
+          </div>
+        }
+
+        <!-- TAB 2: REQUEST CERTIFICATE -->
+        @if (activeTab === 'request') {
+          <div class="section-container">
+            <h3>Request a Barangay Certificate</h3>
+            <ion-card>
+              <ion-card-content>
+                <p>
+                  Certificate request form will be connected to the backend in the
+                  next step.
+                </p>
+              </ion-card-content>
+            </ion-card>
+          </div>
+        }
+
+        <!-- TAB 3: TRACK REQUESTS -->
+        @if (activeTab === 'track') {
+          <div class="section-container">
+            <h3>Track My Certificate Requests</h3>
+            <ion-card>
+              <ion-card-content>
+                <p>Your submitted certificate requests will appear here soon.</p>
+              </ion-card-content>
+            </ion-card>
+          </div>
+        }
+
+        <!-- TAB 4: ANNOUNCEMENTS -->
+        @if (activeTab === 'announcements') {
+          <div class="section-container">
+            <h3>Barangay Announcements</h3>
+            <ion-card>
+              <ion-card-content>
+                <p>Latest barangay announcements will be displayed here soon.</p>
+              </ion-card-content>
+            </ion-card>
+          </div>
+        }
+
+        <!-- TAB 5: PROFILE -->
+        @if (activeTab === 'profile') {
+          <div class="section-container">
+            <h3>Resident Profile</h3>
+            <ion-card>
+              <ion-card-content>
+                <p><strong>Username:</strong> {{ username() || 'Resident' }}</p>
+                <p><strong>Role:</strong> {{ role() || 'resident' }}</p>
+              </ion-card-content>
+            </ion-card>
+          </div>
+        }
+      </div>
+    </ion-content>
+  </div>
+</ion-split-pane>
