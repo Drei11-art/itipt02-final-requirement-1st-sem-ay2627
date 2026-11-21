@@ -1,0 +1,127 @@
+<ion-content class="auth-background">
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      
+      <!-- Header / Logo Section -->
+      <div class="auth-header">
+        <div class="logo-circle">
+           <img src="/assets/san-anton-logo.jpg" alt="Barangay San Anton Logo" class="hero-logo-img" />
+        </div>
+        <h1>Barangay San Anton</h1>
+        <p>San Leonardo, Nueva Ecija</p>
+        <span class="subtitle">Management & Certificate Request Portal</span>
+      </div>
+
+      <!-- Mode Toggle (Login vs Register) -->
+      <div class="mode-switcher">
+        <button 
+          type="button" 
+          [class.active]="!isRegisterMode" 
+          (click)="switchMode(false)">
+          Sign In
+        </button>
+        <button 
+          type="button" 
+          [class.active]="isRegisterMode" 
+          (click)="switchMode(true)">
+          Create Account
+        </button>
+      </div>
+
+      <!-- LOGIN FORM -->
+      @if (!isRegisterMode) {
+        <form (ngSubmit)="onLogin()" class="auth-form" autocomplete="off">
+          <div class="input-group">
+            <ion-icon name="person-outline"></ion-icon>
+            <input 
+              type="text" 
+              [(ngModel)]="loginData.username" 
+              name="loginUsername" 
+              placeholder="Username" 
+              autocomplete="off"
+              required />
+          </div>
+
+          <div class="input-group">
+            <ion-icon name="lock-closed-outline"></ion-icon>
+            <input 
+              [type]="showPassword ? 'text' : 'password'" 
+              [(ngModel)]="loginData.password" 
+              name="loginPassword" 
+              placeholder="Password" 
+              autocomplete="new-password"
+              required />
+            <ion-icon 
+              [name]="showPassword ? 'eye-off-outline' : 'eye-outline'" 
+              class="toggle-eye"
+              (click)="showPassword = !showPassword">
+            </ion-icon>
+          </div>
+
+          <button type="submit" class="btn-primary">
+            Sign In to Portal
+            <ion-icon name="arrow-forward-outline"></ion-icon>
+          </button>
+        </form>
+      }
+
+      <!-- REGISTER FORM (Aesthetic & Clean) -->
+      @if (isRegisterMode) {
+        <form (ngSubmit)="onRegister()" class="auth-form animate-fade" autocomplete="off">
+          <div class="form-hint">
+            <p>Fill in your details to register as a resident.</p>
+          </div>
+
+          <div class="input-group">
+            <ion-icon name="person-add-outline"></ion-icon>
+            <input 
+              type="text" 
+              [(ngModel)]="registerData.username" 
+              name="regUsername" 
+              placeholder="Choose a Username" 
+              autocomplete="off"
+              required />
+          </div>
+
+          <div class="input-group">
+            <ion-icon name="lock-closed-outline"></ion-icon>
+            <input 
+              [type]="showPassword ? 'text' : 'password'" 
+              [(ngModel)]="registerData.password" 
+              name="regPassword" 
+              placeholder="Create Password" 
+              autocomplete="new-password"
+              required />
+            <ion-icon 
+              [name]="showPassword ? 'eye-off-outline' : 'eye-outline'" 
+              class="toggle-eye"
+              (click)="showPassword = !showPassword">
+            </ion-icon>
+          </div>
+
+          <div class="input-group">
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+            <input 
+              [type]="showPassword ? 'text' : 'password'" 
+              [(ngModel)]="registerData.confirmPassword" 
+              name="regConfirmPassword" 
+              placeholder="Confirm Password" 
+              autocomplete="new-password"
+              required />
+          </div>
+
+          <button type="submit" class="btn-primary register-btn">
+            Register Resident Account
+            <ion-icon name="arrow-forward-outline"></ion-icon>
+          </button>
+        </form>
+      }
+
+      <!-- Footer -->
+      <div class="auth-footer">
+        <p>© 2026 Barangay San Anton Official System</p>
+      </div>
+
+    </div>
+  </div>
+</ion-content>
