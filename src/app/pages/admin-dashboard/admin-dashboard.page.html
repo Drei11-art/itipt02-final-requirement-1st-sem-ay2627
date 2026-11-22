@@ -1,15 +1,16 @@
-<ion-split-pane content-id="admin-main-content">
+<ion-split-pane content-id="main-content">
+  
   <!-- SIDEBAR MENU -->
-  <ion-menu content-id="admin-main-content" menuId="admin-main-menu">
+  <ion-menu content-id="main-content" menuId="main-menu">
     <ion-header>
       <ion-toolbar class="aesthetic-toolbar">
         <ion-title>Barangay San Anton</ion-title>
       </ion-toolbar>
     </ion-header>
-
+    
     <ion-content>
       <ion-list lines="none">
-        <ion-item button (click)="scrollToSection('dashboard-top')">
+        <ion-item button (click)="scrollToSection('dashboard-top')" color="light">
           <ion-icon slot="start" name="home-outline"></ion-icon>
           <ion-label>Dashboard</ion-label>
         </ion-item>
@@ -17,13 +18,17 @@
           <ion-icon slot="start" name="people-outline"></ion-icon>
           <ion-label>Officials</ion-label>
         </ion-item>
-        <ion-item button (click)="scrollToSection('requests-preview')">
+        <ion-item button (click)="scrollToSection('requests')">
           <ion-icon slot="start" name="document-text-outline"></ion-icon>
           <ion-label>Certificate Requests</ion-label>
         </ion-item>
-        <ion-item button (click)="scrollToSection('announcements-preview')">
+        <ion-item button (click)="scrollToSection('announcements')">
           <ion-icon slot="start" name="megaphone-outline"></ion-icon>
           <ion-label>Announcements</ion-label>
+        </ion-item>
+        <ion-item button (click)="scrollToSection('history')">
+          <ion-icon slot="start" name="time-outline"></ion-icon>
+          <ion-label>History</ion-label>
         </ion-item>
       </ion-list>
 
@@ -37,8 +42,8 @@
   </ion-menu>
 
   <!-- MAIN CONTENT AREA -->
-  <div class="ion-page" id="admin-main-content">
-    <ion-header [translucent]="true">
+  <div class="ion-page" id="main-content">
+    <ion-header>
       <ion-toolbar class="aesthetic-toolbar">
         <ion-buttons slot="start">
           <ion-menu-button></ion-menu-button>
@@ -48,17 +53,15 @@
     </ion-header>
 
     <ion-content class="ion-padding">
+      <!-- ANCHOR POINT PARA SA DASHBOARD TOP SCROLL -->
       <div id="dashboard-top"></div>
 
       <div class="dashboard-container">
-        <!-- BANNER -->
+        
+        <!-- AESTHETIC BANNER WITH EXACT SAN ANTON LOGO -->
         <div class="barangay-hero-banner">
           <div class="hero-logo-container">
-            <img
-              src="/assets/san-anton-logo.jpg"
-              alt="Barangay San Anton Logo"
-              class="hero-logo-img"
-            />
+           <img src="assets/icon/san-anton-logo.jpg" alt="Barangay San Anton Logo" class="hero-logo-img" />
           </div>
           <div class="hero-text">
             <h2>Barangay San Anton</h2>
@@ -66,68 +69,212 @@
           </div>
         </div>
 
-        <!-- BASIC OVERVIEW CARDS -->
+        <!-- Quick Stats Cards -->
         <div class="stats-grid">
-          <ion-card class="stat-card">
+          <ion-card class="stat-card" button (click)="editTotalResidents()">
             <ion-card-header>
               <ion-icon name="people" color="primary" size="large"></ion-icon>
-              <ion-card-title>Total Residents</ion-card-title>
+              <ion-card-title>Total Residents (Click to Edit)</ion-card-title>
             </ion-card-header>
             <ion-card-content>
               <h3>{{ totalResidents }}</h3>
-              <p>Registered residents overview</p>
+              <p>Active registered residents</p>
             </ion-card-content>
           </ion-card>
 
           <ion-card class="stat-card">
             <ion-card-header>
               <ion-icon name="document-text" color="warning" size="large"></ion-icon>
-              <ion-card-title>Certificate Requests</ion-card-title>
+              <ion-card-title>Pending Requests</ion-card-title>
             </ion-card-header>
             <ion-card-content>
-              <h3>0</h3>
-              <p>Pending review (coming next)</p>
+              <h3>{{ pendingCount }}</h3>
+              <p>Waiting for approval</p>
+            </ion-card-content>
+          </ion-card>
+
+          <ion-card class="stat-card">
+            <ion-card-header>
+              <ion-icon name="checkmark-circle" color="success" size="large"></ion-icon>
+              <ion-card-title>Approved Requests</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <h3>{{ approvedCount }}</h3>
+              <p>Successfully approved</p>
+            </ion-card-content>
+          </ion-card>
+
+          <ion-card class="stat-card">
+            <ion-card-header>
+              <ion-icon name="archive-outline" color="medium" size="large"></ion-icon>
+              <ion-card-title>Archived Requests</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <h3>{{ archivedCount }}</h3>
+              <p>Archived with reasons</p>
             </ion-card-content>
           </ion-card>
         </div>
 
-        <!-- OFFICIALS PREVIEW -->
+        <!-- BARANGAY OFFICIALS SECTION -->
         <div class="section-container" id="officials">
-          <h3>Barangay Officials</h3>
+          <h3>Barangay San Anton Officials</h3>
+          
           <ion-card class="official-group-card">
+            <ion-card-header>
+              <ion-card-title color="primary">Punong Barangay (Captain)</ion-card-title>
+            </ion-card-header>
             <ion-card-content>
               <ion-item lines="none">
                 <ion-icon name="shield-checkmark" slot="start" color="primary"></ion-icon>
                 <ion-label>
                   <h2>{{ barangayCaptain }}</h2>
-                  <p>Punong Barangay (Captain)</p>
+                  <p>Barangay Captain</p>
                 </ion-label>
               </ion-item>
             </ion-card-content>
           </ion-card>
-        </div>
 
-        <!-- REQUESTS & ANNOUNCEMENTS PLACEHOLDER SECTIONS -->
-        <div class="section-container" id="requests-preview">
-          <h3>Certificate Requests</h3>
-          <ion-card>
+          <ion-card class="official-group-card">
+            <ion-card-header>
+              <ion-card-title color="secondary">Sangguniang Barangay (Kagawad)</ion-card-title>
+            </ion-card-header>
             <ion-card-content>
-              <p>
-                Logged in as <strong>{{ username() || 'Admin' }}</strong> ({{ role() || 'employee' }}).
-                Request management will be wired up in the next step.
-              </p>
+              <ion-list lines="full">
+                @for (kagawad of kagawads; track kagawad) {
+                  <ion-item>
+                    <ion-icon name="person-circle-outline" slot="start"></ion-icon>
+                    <ion-label>{{ kagawad }}</ion-label>
+                    <span slot="end" class="badge-role">Kagawad</span>
+                  </ion-item>
+                }
+              </ion-list>
+            </ion-card-content>
+          </ion-card>
+
+          <ion-card class="official-group-card">
+            <ion-card-header>
+              <ion-card-title color="success">Sangguniang Kabataan (SK)</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <ion-list lines="none">
+                @for (sk of skOfficials; track sk) {
+                  <ion-item>
+                    <ion-icon name="ribbon-outline" slot="start" color="success"></ion-icon>
+                    <ion-label>
+                      <h2>{{ sk }}</h2>
+                      <p>SK Chairman</p>
+                    </ion-label>
+                  </ion-item>
+                }
+              </ion-list>
             </ion-card-content>
           </ion-card>
         </div>
 
-        <div class="section-container" id="announcements-preview">
-          <h3>Announcements</h3>
-          <ion-card>
+        <!-- CERTIFICATE REQUEST MANAGEMENT (PENDING ONLY) -->
+        <div class="section-container" id="requests">
+          <h3>Pending Certificate Requests</h3>
+          <ion-list lines="full">
+            @for (req of certificateRequests; track req.id) {
+              <ion-item>
+                <ion-label>
+                  <h4><strong>{{ req.request_code }}</strong> - {{ req.resident_name }}</h4>
+                  <p>{{ req.certificate_type }} | Date: {{ req.request_date }} ({{ req.request_time }})</p>
+                </ion-label>
+                <ion-badge [color]="getStatusColor(req.status)" slot="end">{{ req.status }}</ion-badge>
+                <div slot="end" style="margin-left: 10px; display: flex; gap: 5px;">
+                  <ion-button size="small" color="success" (click)="updateStatus(req.id, 'Approved', req.request_code)">Approve</ion-button>
+                  <ion-button size="small" color="warning" (click)="updateStatus(req.id, 'Archived', req.request_code)">Archive</ion-button>
+                </div>
+              </ion-item>
+            } @empty {
+              <ion-item>
+                <ion-label class="ion-text-center">
+                  <p>No pending certificate requests at the moment.</p>
+                </ion-label>
+              </ion-item>
+            }
+          </ion-list>
+        </div>
+
+        <!-- ANNOUNCEMENTS SECTION -->
+        <div class="section-container" id="announcements">
+          <h3>Barangay Announcements</h3>
+
+          <ion-card style="margin-bottom: 20px; padding: 10px;">
+            <ion-card-header>
+              <ion-card-title>{{ isEditingAnnouncement ? 'Edit Announcement' : 'Add New Announcement' }}</ion-card-title>
+            </ion-card-header>
             <ion-card-content>
-              <p>Barangay announcement tools will be connected in the next update.</p>
+              <ion-item>
+                <ion-input label="Title" labelPlacement="stacked" [(ngModel)]="announcementForm.title" placeholder="Enter title"></ion-input>
+              </ion-item>
+              <ion-item>
+                <ion-textarea label="Description" labelPlacement="stacked" [(ngModel)]="announcementForm.description" placeholder="Enter description"></ion-textarea>
+              </ion-item>
+              <ion-item>
+                <ion-input label="Date" labelPlacement="stacked" [(ngModel)]="announcementForm.date" placeholder="e.g. Nov 20, 2026"></ion-input>
+              </ion-item>
+              <div style="margin-top: 15px; display: flex; gap: 10px;">
+                <ion-button expand="block" color="primary" (click)="saveAnnouncement()">
+                  {{ isEditingAnnouncement ? 'Update Announcement' : 'Post Announcement' }}
+                </ion-button>
+                @if (isEditingAnnouncement) {
+                  <ion-button expand="block" color="medium" (click)="cancelEditAnnouncement()">Cancel</ion-button>
+                }
+              </div>
             </ion-card-content>
           </ion-card>
+
+          <div class="announcement-grid">
+            @for (announcement of announcements; track announcement.id) {
+              <ion-card>
+                <ion-card-header>
+                  <ion-card-title>{{ announcement.title }}</ion-card-title>
+                </ion-card-header>
+                <ion-card-content>
+                  <p>{{ announcement.description }}</p>
+                  <small style="color: gray;">Date: {{ announcement.date }}</small>
+                  <div style="margin-top: 10px;">
+                    <ion-button size="small" color="secondary" (click)="editAnnouncement(announcement)">Edit</ion-button>
+                  </div>
+                </ion-card-content>
+              </ion-card>
+            }
+          </div>
         </div>
+
+        <!-- HISTORY SECTION -->
+        <div class="section-container" id="history">
+          <h3>Request History (Approved & Archived)</h3>
+          <ion-list lines="full">
+            @for (item of historyLogs; track item.id) {
+              <ion-item>
+                <ion-label>
+                  <h4>{{ item.request_code }} - {{ item.resident_name }} ({{ item.certificate_type }})</h4>
+                  <p>Status: <strong>{{ item.status }}</strong> | Requested on: {{ item.request_date }}</p>
+                  @if (item.status === 'Archived' && item.archive_reason) {
+                    <p style="color: #e67e22; margin-top: 4px;"><strong>Archive Reason:</strong> {{ item.archive_reason }}</p>
+                  }
+                  @if (item.status === 'Approved' && item.pdf_filename) {
+                    <div style="margin-top: 6px;">
+                      <ion-button size="small" color="primary" (click)="viewPdf(item.pdf_filename)">View PDF</ion-button>
+                    </div>
+                  }
+                </ion-label>
+                <ion-badge [color]="getStatusColor(item.status)" slot="end">{{ item.status }}</ion-badge>
+              </ion-item>
+            } @empty {
+              <ion-item>
+                <ion-label class="ion-text-center">
+                  <p>No history records found.</p>
+                </ion-label>
+              </ion-item>
+            }
+          </ion-list>
+        </div>
+
       </div>
     </ion-content>
   </div>
