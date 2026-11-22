@@ -42,6 +42,12 @@ interface ResidentsResponse {
   total_residents: string;
 }
 
+interface SavedUserProfile {
+  name: string;
+  contact: string;
+  address: string;
+}
+
 @Component({
   selector: 'app-resident-user',
   templateUrl: './resident-user.page.html',
@@ -100,14 +106,39 @@ export class ResidentUserPage implements OnInit {
   }
 
   ngOnInit(): void {
-    const loggedUser = localStorage.getItem('username') || 'Resident';
+    const loggedUser = localStorage.getItem('barangay_username') || localStorage.getItem('username') || 'Resident';
     this.username = loggedUser;
     this.userProfile.username = loggedUser;
     this.userProfile.name = loggedUser;
 
+    this.loadSavedProfile(loggedUser);
     this.loadRequests();
     this.loadTotalResidents();
     this.loadAnnouncements();
+  }
+
+  private getProfileStorageKey(user: string): string {
+    return `resident_profile_${user.trim().toLowerCase()}`;
+  }
+
+  private loadSavedProfile(user: string): void {
+    try {
+      const raw = localStorage.getItem(this.getProfileStorageKey(user));
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as Partial<SavedUserProfile>;
+      if (typeof parsed.name === 'string' && parsed.name.trim()) {
+        this.userProfile.name = parsed.name.trim();
+        this.username = parsed.name.trim();
+      }
+      if (typeof parsed.contact === 'string') {
+        this.userProfile.contact = parsed.contact;
+      }
+      if (typeof parsed.address === 'string') {
+        this.userProfile.address = parsed.address;
+      }
+    } catch (err: unknown) {
+      console.error('Error loading saved profile:', err);
+    }
   }
 
   loadTotalResidents(): void {
@@ -179,9 +210,25 @@ export class ResidentUserPage implements OnInit {
   }
 
   updateProfile(): void {
-    this.username = this.userProfile.name;
-    localStorage.setItem('username', this.userProfile.name);
-    alert('Profile successfully updated!');
+    const cleanName = this.userProfile.name.trim() || this.username;
+    const cleanContact = this.userProfile.contact.trim();
+    const cleanAddress = this.userProfile.address.trim();
+
+    this.userProfile.name = cleanName;
+    this.userProfile.contact = cleanContact;
+    this.userProfile.address = cleanAddress;
+    this.username = cleanName;
+
+    const profileKey = this.getProfileStorageKey(this.userProfile.username || cleanName);
+    const toSave: SavedUserProfile = {
+      name: cleanName,
+      contact: cleanContact,
+      address: cleanAddress
+    };
+
+    localStorage.setItem(profileKey, JSON.stringify(toSave));
+    localStorage.setItem('username', cleanName);
+    alert('Profile (including address) successfully updated!');
   }
 
   getStatusColor(status: string): string {

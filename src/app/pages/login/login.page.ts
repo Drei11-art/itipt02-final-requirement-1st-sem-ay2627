@@ -56,7 +56,7 @@ export class LoginPage implements ViewWillEnter {
     });
   }
 
-  // Awtomatikong binubura ang lahat ng input fields sa login at register pagpasok o pag-logout
+  // Automatic Deleting when Logout and Login Credentials
   ionViewWillEnter(): void {
     this.clearAllData();
   }
@@ -70,7 +70,7 @@ export class LoginPage implements ViewWillEnter {
 
   switchMode(register: boolean): void {
     this.isRegisterMode = register;
-    // Kapag lumipat sa pagitan ng Sign In at Create Account, binubura agad ang mga na-type
+    //  Automatic delete when navigate into Sign In at Create Account your previous credentials
     this.loginData = { username: '', password: '' };
     this.registerData = { username: '', password: '', confirmPassword: '' };
     this.showPassword = false;
@@ -92,7 +92,7 @@ export class LoginPage implements ViewWillEnter {
         localStorage.setItem('username', res.username);
         localStorage.setItem('role', res.role);
 
-        // Burahin ang credentials sa form bago lumipat ng page
+        
         this.clearAllData();
 
         if (res.role === 'admin') {
@@ -128,7 +128,7 @@ export class LoginPage implements ViewWillEnter {
     this.http.post<any>(`${this.baseUrl}/register`, payload).subscribe({
       next: () => {
         alert('Registration successful! Please sign in with your new account.');
-        // Linisin ang register form at bumalik sa login form na blangko
+        
         this.clearAllData();
         this.isRegisterMode = false;
       },

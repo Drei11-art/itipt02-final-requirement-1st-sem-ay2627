@@ -12,7 +12,8 @@ import { addIcons } from 'ionicons';
 import { 
   checkmarkCircle, documentText, documentTextOutline, homeOutline, 
   logOutOutline, megaphoneOutline, people, peopleOutline, 
-  personCircleOutline, ribbonOutline, shieldCheckmark, timeOutline, archiveOutline 
+  personCircleOutline, ribbonOutline, shieldCheckmark, timeOutline, archiveOutline,
+  trashOutline 
 } from 'ionicons/icons';
 
 @Component({
@@ -55,7 +56,8 @@ export class AdminDashboardPage implements OnInit {
     addIcons({ 
       logOutOutline, peopleOutline, documentTextOutline, shieldCheckmark, 
       homeOutline, megaphoneOutline, timeOutline, personCircleOutline, 
-      ribbonOutline, people, documentText, checkmarkCircle, archiveOutline 
+      ribbonOutline, people, documentText, checkmarkCircle, archiveOutline,
+      trashOutline 
     });
   }
 
@@ -133,6 +135,32 @@ export class AdminDashboardPage implements OnInit {
         error: (err) => console.error('Error updating status:', err)
       });
     }
+  }
+
+  deleteHistoryItem(id: number, reqCode: string): void {
+    const confirmed = confirm(`Are you sure you want to delete history record ${reqCode}?`);
+    if (!confirmed) return;
+
+    this.http.delete(`${this.apiUrl}/history/${id}`).subscribe({
+      next: () => {
+        alert(`History record ${reqCode} deleted.`);
+        this.loadRequests();
+      },
+      error: (err) => console.error('Error deleting history record:', err)
+    });
+  }
+
+  clearAllHistory(): void {
+    const confirmed = confirm('Are you sure you want to delete ALL Approved and Archived history records? This cannot be undone.');
+    if (!confirmed) return;
+
+    this.http.delete(`${this.apiUrl}/history`).subscribe({
+      next: () => {
+        alert('All history records cleared.');
+        this.loadRequests();
+      },
+      error: (err) => console.error('Error clearing history:', err)
+    });
   }
 
   viewPdf(filename: string): void {

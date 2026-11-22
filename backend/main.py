@@ -50,6 +50,12 @@ class UserLogin(BaseModel):
     password: str
 
 
+class ProfileUpdate(BaseModel):
+    name: str
+    contact: Optional[str] = ""
+    address: Optional[str] = ""
+
+
 class CertificateRequestCreate(BaseModel):
     username: str
     resident_name: str
@@ -74,6 +80,20 @@ class AnnouncementModel(BaseModel):
     date: str
 
 
+def _ensure_user_profile_columns(cursor):
+    cursor.execute("SHOW COLUMNS FROM users LIKE 'full_name'")
+    if not cursor.fetchone():
+        cursor.execute("ALTER TABLE users ADD COLUMN full_name VARCHAR(255) NULL")
+
+    cursor.execute("SHOW COLUMNS FROM users LIKE 'contact'")
+    if not cursor.fetchone():
+        cursor.execute("ALTER TABLE users ADD COLUMN contact VARCHAR(100) NULL")
+
+    cursor.execute("SHOW COLUMNS FROM users LIKE 'address'")
+    if not cursor.fetchone():
+        cursor.execute("ALTER TABLE users ADD COLUMN address VARCHAR(255) NULL")
+
+
 def generate_certificate_pdf(req_data: dict) -> str:
     clean_code = req_data['request_code'].replace('#', '')
     filename = f"{clean_code}_{req_data['resident_name'].replace(' ', '_')}.pdf"
@@ -82,7 +102,7 @@ def generate_certificate_pdf(req_data: dict) -> str:
     c = canvas.Canvas(filepath, pagesize=letter)
     width, height = letter
 
-    # Header - Republic of the Philippines
+    # Header
     c.setFont("Times-Roman", 12)
     c.drawCentredString(width / 2, height - 70, "Republic of the Philippines")
     c.drawCentredString(width / 2, height - 86, "Province of Nueva Ecija")
@@ -107,9 +127,11 @@ def generate_certificate_pdf(req_data: dict) -> str:
     c.setFont("Times-Roman", 12)
     c.drawString(85, height - 260, "To whom it may concern,")
 
-    # Body Text depende sa Certificate Type
+    # Body Text depende sa Certificate Type at Purok
     res_name = req_data['resident_name'].upper()
     req_date = req_data['request_date']
+    purok_val = (req_data.get('purok') or '').strip()
+    location_text = f"{purok_val}, Barangay San Anton, San Leonardo, Nueva Ecija" if purok_val else "Barangay San Anton, San Leonardo, Nueva Ecija"
 
     text_obj = c.beginText(85, height - 300)
     text_obj.setFont("Times-Roman", 12)
@@ -117,25 +139,25 @@ def generate_certificate_pdf(req_data: dict) -> str:
 
     if "Indigency" in req_data['certificate_type']:
         text_obj.textLine(f"        This is to certify that {res_name}, of legal age, is a bonafide")
-        text_obj.textLine("resident of Barangay San Anton, San Leonardo, Nueva Ecija.")
+        text_obj.textLine(f"resident of {location_text}.")
         text_obj.textLine("")
         text_obj.textLine("        This is to certify further that the above-named person belongs to the indigent")
         text_obj.textLine("family of this Barangay.")
     elif "Residency" in req_data['certificate_type']:
         text_obj.textLine(f"        This is to certify that {res_name}, of legal age, is a permanent")
-        text_obj.textLine("and bonafide resident of Barangay San Anton, San Leonardo, Nueva Ecija.")
+        text_obj.textLine(f"and bonafide resident of {location_text}.")
         text_obj.textLine("")
         text_obj.textLine("        This certification is issued to attest to his/her actual residency in this")
         text_obj.textLine("Barangay for all legal intents and purposes.")
     elif "Business" in req_data['certificate_type']:
         text_obj.textLine(f"        This is to certify that {res_name}, a bonafide resident of")
-        text_obj.textLine("Barangay San Anton, San Leonardo, Nueva Ecija, is hereby granted clearance")
+        text_obj.textLine(f"{location_text}, is hereby granted clearance")
         text_obj.textLine("to operate a legitimate business within the jurisdiction of this Barangay,")
         text_obj.textLine("subject to existing ordinances and regulations.")
     else:
         # Default: Barangay Clearance
         text_obj.textLine(f"        This is to certify that {res_name}, of legal age, is a bonafide")
-        text_obj.textLine("resident of Barangay San Anton, San Leonardo, Nueva Ecija.")
+        text_obj.textLine(f"resident of {location_text}.")
         text_obj.textLine("")
         text_obj.textLine("        Based on the records of this office, he/she is of good moral character")
         text_obj.textLine("and has no derogatory record on file as of this date.")
@@ -150,7 +172,7 @@ def generate_certificate_pdf(req_data: dict) -> str:
 
     c.drawText(text_obj)
 
-    # Signature Section (Barangay Captain Only)
+    #  (Barangay Captain )
     c.setFont("Times-Roman", 11)
     c.drawString(330, 210, "Witness:")
 
@@ -203,6 +225,65 @@ def login_user(credentials: UserLogin):
         if not user or user["password"] != credentials.password:
             raise HTTPException(status_code=401, detail="Invalid username or password.")
         return {"message": "Login successful", "username": user["username"], "role": user["role"]}
+    except HTTPException:
+        raise
+    except mysql.connector.Error as err:
+        raise HTTPException(status_code=500, detail=str(err))
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.get("/profile/{username}")
+def get_user_profile(username: str):
+    conn = get_db_connection()
+    if not conn:
+        raise HTTPException(status_code=500, detail="Database connection failed")
+    cursor = conn.cursor(dictionary=True)
+    try:
+        _ensure_user_profile_columns(cursor)
+        conn.commit()
+        cursor.execute(
+            "SELECT username, full_name, contact, address FROM users WHERE username = %s",
+            (username,)
+        )
+        user = cursor.fetchone()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        return {
+            "username": user["username"],
+            "name": user.get("full_name") or user["username"],
+            "contact": user.get("contact") or "",
+            "address": user.get("address") or ""
+        }
+    except HTTPException:
+        raise
+    except mysql.connector.Error as err:
+        raise HTTPException(status_code=500, detail=str(err))
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.put("/profile/{username}")
+def update_user_profile(username: str, profile: ProfileUpdate):
+    conn = get_db_connection()
+    if not conn:
+        raise HTTPException(status_code=500, detail="Database connection failed")
+    cursor = conn.cursor()
+    try:
+        _ensure_user_profile_columns(cursor)
+        cursor.execute(
+            "UPDATE users SET full_name = %s, contact = %s, address = %s WHERE username = %s",
+            (profile.name, profile.contact, profile.address, username)
+        )
+        conn.commit()
+        return {
+            "message": "Profile updated successfully",
+            "name": profile.name,
+            "contact": profile.contact,
+            "address": profile.address
+        }
     except HTTPException:
         raise
     except mysql.connector.Error as err:
@@ -308,6 +389,70 @@ def update_request_status(req_id: int, update: StatusUpdate):
 @app.put("/requests/{req_id}/status")
 def update_request_status_with_subpath(req_id: int, update: StatusUpdate):
     return _process_request_status_update(req_id, update)
+
+
+@app.delete("/requests/history/{req_id}")
+def delete_single_history(req_id: int):
+    conn = get_db_connection()
+    if not conn:
+        raise HTTPException(status_code=500, detail="Database connection failed")
+    cursor = conn.cursor(dictionary=True)
+    try:
+        cursor.execute(
+            "SELECT pdf_filename FROM certificate_requests WHERE id = %s AND status IN ('Approved', 'Archived')",
+            (req_id,)
+        )
+        record = cursor.fetchone()
+        if not record:
+            raise HTTPException(status_code=404, detail="History record not found")
+
+        if record.get("pdf_filename"):
+            pdf_path = os.path.join(PDF_DIR, record["pdf_filename"])
+            if os.path.exists(pdf_path):
+                os.remove(pdf_path)
+
+        cursor.execute(
+            "DELETE FROM certificate_requests WHERE id = %s AND status IN ('Approved', 'Archived')",
+            (req_id,)
+        )
+        conn.commit()
+        return {"message": "History record deleted successfully"}
+    except HTTPException:
+        raise
+    except mysql.connector.Error as err:
+        raise HTTPException(status_code=500, detail=str(err))
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.delete("/requests/history")
+def clear_all_history():
+    conn = get_db_connection()
+    if not conn:
+        raise HTTPException(status_code=500, detail="Database connection failed")
+    cursor = conn.cursor(dictionary=True)
+    try:
+        cursor.execute(
+            "SELECT pdf_filename FROM certificate_requests WHERE status IN ('Approved', 'Archived')"
+        )
+        records = cursor.fetchall()
+        for rec in records:
+            if rec.get("pdf_filename"):
+                pdf_path = os.path.join(PDF_DIR, rec["pdf_filename"])
+                if os.path.exists(pdf_path):
+                    os.remove(pdf_path)
+
+        cursor.execute("DELETE FROM certificate_requests WHERE status IN ('Approved', 'Archived')")
+        conn.commit()
+        return {"message": "All history records cleared successfully"}
+    except HTTPException:
+        raise
+    except mysql.connector.Error as err:
+        raise HTTPException(status_code=500, detail=str(err))
+    finally:
+        cursor.close()
+        conn.close()
 
 
 @app.get("/download-certificate/{filename}")
