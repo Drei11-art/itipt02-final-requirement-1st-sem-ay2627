@@ -53,12 +53,12 @@
     </ion-header>
 
     <ion-content class="ion-padding">
-      <!-- ANCHOR POINT PARA SA DASHBOARD TOP SCROLL -->
+      <!-- PARA SA DASHBOARD TOP SCROLL -->
       <div id="dashboard-top"></div>
 
       <div class="dashboard-container">
         
-        <!-- AESTHETIC BANNER WITH EXACT SAN ANTON LOGO -->
+        <!-- SAN ANTON LOGO -->
         <div class="barangay-hero-banner">
           <div class="hero-logo-container">
            <img src="assets/icon/san-anton-logo.jpg" alt="Barangay San Anton Logo" class="hero-logo-img" />
@@ -69,7 +69,7 @@
           </div>
         </div>
 
-        <!-- Quick Stats Cards -->
+        <!-- Informations -->
         <div class="stats-grid">
           <ion-card class="stat-card" button (click)="editTotalResidents()">
             <ion-card-header>
@@ -116,7 +116,7 @@
           </ion-card>
         </div>
 
-        <!-- BARANGAY OFFICIALS SECTION -->
+        <!-- BARANGAY OFFICIALS -->
         <div class="section-container" id="officials">
           <h3>Barangay San Anton Officials</h3>
           
@@ -172,7 +172,7 @@
           </ion-card>
         </div>
 
-        <!-- CERTIFICATE REQUEST MANAGEMENT (PENDING ONLY) -->
+        <!-- CERTIFICATE REQUEST MANAGEMENT  -->
         <div class="section-container" id="requests">
           <h3>Pending Certificate Requests</h3>
           <ion-list lines="full">
@@ -180,7 +180,7 @@
               <ion-item>
                 <ion-label>
                   <h4><strong>{{ req.request_code }}</strong> - {{ req.resident_name }}</h4>
-                  <p>{{ req.certificate_type }} | Date: {{ req.request_date }} ({{ req.request_time }})</p>
+                  <p>{{ req.certificate_type }} | Purok: {{ req.purok || 'N/A' }} | Date: {{ req.request_date }} ({{ req.request_time }})</p>
                 </ion-label>
                 <ion-badge [color]="getStatusColor(req.status)" slot="end">{{ req.status }}</ion-badge>
                 <div slot="end" style="margin-left: 10px; display: flex; gap: 5px;">
@@ -198,7 +198,7 @@
           </ion-list>
         </div>
 
-        <!-- ANNOUNCEMENTS SECTION -->
+        <!-- ANNOUNCEMENTS -->
         <div class="section-container" id="announcements">
           <h3>Barangay Announcements</h3>
 
@@ -245,15 +245,23 @@
           </div>
         </div>
 
-        <!-- HISTORY SECTION -->
+        <!-- HISTORY -->
         <div class="section-container" id="history">
-          <h3>Request History (Approved & Archived)</h3>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h3 style="margin: 0;">Request History (Approved & Archived)</h3>
+            @if (historyLogs.length > 0) {
+              <ion-button size="small" color="danger" fill="outline" (click)="clearAllHistory()">
+                <ion-icon slot="start" name="trash-outline"></ion-icon>
+                Clear All History
+              </ion-button>
+            }
+          </div>
           <ion-list lines="full">
             @for (item of historyLogs; track item.id) {
               <ion-item>
                 <ion-label>
                   <h4>{{ item.request_code }} - {{ item.resident_name }} ({{ item.certificate_type }})</h4>
-                  <p>Status: <strong>{{ item.status }}</strong> | Requested on: {{ item.request_date }}</p>
+                  <p>Purok: {{ item.purok || 'N/A' }} | Status: <strong>{{ item.status }}</strong> | Requested on: {{ item.request_date }}</p>
                   @if (item.status === 'Archived' && item.archive_reason) {
                     <p style="color: #e67e22; margin-top: 4px;"><strong>Archive Reason:</strong> {{ item.archive_reason }}</p>
                   }
@@ -264,6 +272,9 @@
                   }
                 </ion-label>
                 <ion-badge [color]="getStatusColor(item.status)" slot="end">{{ item.status }}</ion-badge>
+                <ion-button size="small" color="danger" fill="clear" slot="end" (click)="deleteHistoryItem(item.id, item.request_code)">
+                  <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+                </ion-button>
               </ion-item>
             } @empty {
               <ion-item>

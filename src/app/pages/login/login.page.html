@@ -2,7 +2,7 @@
   <div class="auth-wrapper">
     <div class="auth-card">
       
-      <!-- Header / Logo Section -->
+      <!-- Header & Logo Section -->
       <div class="auth-header">
         <div class="logo-circle">
            <img src="assets/icon/san-anton-logo.jpg" alt="Barangay San Anton Logo" class="hero-logo-img" />
@@ -12,7 +12,7 @@
         <span class="subtitle">Management & Certificate Request Portal</span>
       </div>
 
-      <!-- Mode Toggle (Login vs Register) -->
+      <!-- Toggle (Login vs Register) -->
       <div class="mode-switcher">
         <button 
           type="button" 
@@ -65,7 +65,7 @@
         </form>
       }
 
-      <!-- REGISTER FORM (Aesthetic & Clean) -->
+      <!-- REGISTER FORM -->
       @if (isRegisterMode) {
         <form (ngSubmit)="onRegister()" class="auth-form animate-fade" autocomplete="off">
           <div class="form-hint">

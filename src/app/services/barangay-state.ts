@@ -154,6 +154,20 @@ export class BarangayStateService {
     await this.loadRequests();
   }
 
+  async deleteHistoryRecord(requestId: number): Promise<void> {
+    await firstValueFrom(
+      this.http.delete(`${this.apiUrl}/requests/history/${requestId}`)
+    );
+    await this.loadRequests();
+  }
+
+  async clearAllHistory(): Promise<void> {
+    await firstValueFrom(
+      this.http.delete(`${this.apiUrl}/requests/history`)
+    );
+    await this.loadRequests();
+  }
+
   getCertificateDownloadUrl(filename: string): string {
     return `${this.apiUrl}/download-certificate/${encodeURIComponent(filename)}`;
   }
@@ -180,8 +194,7 @@ export class BarangayStateService {
     }
     await this.loadAnnouncements();
   }
-
-  // --- Safe storage helpers ---
+  
   private readStorage(key: string): string {
     try {
       return localStorage.getItem(key) ?? '';
