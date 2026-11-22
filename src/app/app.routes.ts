@@ -19,8 +19,12 @@ export const routes: Routes = [
   {
     path: 'admin-dashboard',
     loadComponent: () =>
+<<<<<<< HEAD
+      import('./pages/admin-dashboard/admin-dashboard.page').then((m) => m.AdminDashboardPage),
+=======
       import('./pages/admin-dashboard/admin-dashboard.page').then((m) => m.AdminDashboardPage
     ),
+>>>>>>> 5a3a901b29435521227c3f92e187e9b4a132cc66
 },
   {
     path: 'resident-user',
