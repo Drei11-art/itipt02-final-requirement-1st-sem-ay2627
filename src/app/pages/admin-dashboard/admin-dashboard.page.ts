@@ -32,7 +32,6 @@ import {
   shieldCheckmark,
 } from 'ionicons/icons';
 
-import { BarangayStateService } from '../../services/barangay-state';
 
 @Component({
   selector: 'app-admin-dashboard',
