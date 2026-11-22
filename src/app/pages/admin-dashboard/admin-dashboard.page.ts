@@ -15,7 +15,6 @@ import {
   personCircleOutline, ribbonOutline, shieldCheckmark, timeOutline, archiveOutline 
 } from 'ionicons/icons';
 
-
 @Component({
   selector: 'app-admin-dashboard',
   templateUrl: './admin-dashboard.page.html',
